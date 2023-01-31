@@ -28,13 +28,54 @@ Um versão simples do algoritmo MINIMAX para o Jogo da Velha.
 # tabuleiro = dicionário com os valores em cada posição (x,y)
 # indicando o jogador que movimentou nessa posição.
 # Começa vazio, com zero em todas posições.
-HUMANO = -1
-COMP = +1
+class Jogador():
+
+    def __init__(self, qnt, simbolo,) -> None:
+        super().__init__()
+        self.qnt=[]
+        self.px=[]
+        self.py=[]
+        for i in range( qnt):
+            self.qnt.append(1)
+        self.simbolo=simbolo
+        # DEFINE POSIÇÕES SE FOR GATO OU RATO, E A POSIÇÃO DE CADA UM EM X E Y
+        if(qnt==1): 
+            self.px.append(3)
+            self.py.append(7)
+        else:
+            self.px.append(1)
+            self.py.append(0)
+
+            self.px.append(1)
+            self.py.append(1)
+
+            self.px.append(1)
+            self.py.append(2)
+
+            self.px.append(1)
+            self.py.append(5)
+
+            self.px.append(1)
+            self.py.append(6)
+
+            self.px.append(1)
+            self.py.append(7)
+
+            
+HUMANO = Jogador(1,-1)
+COMP = Jogador(6,+1)
+
 tabuleiro = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, -1, 0, 0, 0, 0],
 ]
+
 
 """
 Funcao para avaliacao heuristica do estado.
@@ -56,26 +97,27 @@ def avaliacao(estado):
 def vitoria(estado, jogador):
     """
     Esta funcao testa se um jogador especifico vence. Possibilidades:
-    * Tres linhas     [X X X] or [O O O]
-    * Tres colunas    [X X X] or [O O O]
-    * Duas diagonais  [X X X] or [O O O]
+
+    SE TEM UM RATO NA ULTIMA LINHA DO TABULEIRO
+
     :param. (estado): o estado atual do tabuleiro
     :param. (jogador): um HUMANO ou um Computador
     :return: True se jogador vence
     """
     win_estado = [
-        [estado[0][0], estado[0][1], estado[0][2]], # toda linha 1
-        [estado[1][0], estado[1][1], estado[1][2]], # toda linha 2
-        [estado[2][0], estado[2][1], estado[2][2]], # toda linha 3
-        [estado[0][0], estado[1][0], estado[2][0]], # toda coluna 1
-        [estado[0][1], estado[1][1], estado[2][1]], # toda coluna 2
-        [estado[0][2], estado[1][2], estado[2][2]], # toda coluna 3
-        [estado[0][0], estado[1][1], estado[2][2]], # diagonal principal
-        [estado[2][0], estado[1][1], estado[0][2]], # diagonal secundária
+        # TEM RATO NA LINHA DE BAIXO
+        [estado[0][7]], # [0][7]
+        [estado[1][7]], # [1][7]
+        [estado[2][7]], # [2][7]
+        [estado[3][7]], # [3][7]
+        [estado[4][7]], # [4][7]
+        [estado[5][7]], # [5][7]
+        [estado[6][7]], # [6][7]
+        [estado[7][7]], # [7][7]    
     ]
-    # Se um, dentre todos os alinhamentos pertence um mesmo jogador, 
+
     # então o jogador vence!
-    if [jogador, jogador, jogador] in win_estado:
+    if [jogador.simbolo] in win_estado:
         return True
     else:
         return False
@@ -90,25 +132,64 @@ def fim_jogo(estado):
 """ ---------------------------------------------------------- """
 
 """
-Verifica celular vazias e insere na lista para informar posições
+Verifica celulas vazias e insere na lista para informar posições
 ainda permitidas para próximas jogadas.
 """
-def celulas_vazias(estado):
+def celulas_vazias(estado,jogador):
     celulas = []
     for x, row in enumerate(estado):
         for y, cell in enumerate(row):
             if cell == 0: celulas.append([x, y])
+            if jogador.simbolo == -1:
+                if cell == +1: celulas.append([x, y])
+            else:
+                if cell == -1: celulas.append([x, y])
+                
     return celulas
 """ ---------------------------------------------------------- """
+
+
+def celulas_vazias2(estado,jogado):
+    celulas = []
+    jogador = Jogador()
+    
+    if(jogador.simbolo==+1):
+
+        for j in range(jogador.qnt):
+            celulas.append([jogador.px[j+1]][jogador.py[j]])
+
+            if(jogador.py<7):
+                if(tabuleiro[jogador.px[j+1]][jogador.py[j+1]]==-1):
+                    celulas.append([jogador.px[j+1]][jogador.py[j+1]])
+            
+            if(jogador.py>0):
+                if(tabuleiro[jogador.px[j+1]][jogador.py[j-1]]==-1):
+                    celulas.append([jogador.px[j+1]][jogador.py[j-1]])
+            if(jogador.px==1):
+                celulas.append([jogador.px[j+2]][jogador.py[j]])
+
+
+
+    for x, row in enumerate(estado):
+        for y, cell in enumerate(row):
+            if cell == 0: celulas.append([x, y])
+            if jogador.simbolo == -1:
+                if cell == +1: celulas.append([x, y])
+            else:
+                if cell == -1: celulas.append([x, y])
+                
+    return celulas
+
+
 
 """
 Um movimento é valido se a célula escolhida está vazia.
 :param (x): coordenada X
 :param (y): coordenada Y
-:return: True se o tabuleiro[x][y] está vazio
+:return: True se o tabuleiro[x][y] está vazio ou se tem inimigo
 """
-def movimento_valido(x, y):
-    if [x, y] in celulas_vazias(tabuleiro):
+def movimento_valido(x, y,jogador,qj):
+    if [x, y] in celulas_vazias(tabuleiro,jogador):
         return True
     else:
         return False
@@ -119,12 +200,17 @@ Executa o movimento no tabuleiro se as coordenadas são válidas
 :param (x): coordenadas X
 :param (y): coordenadas Y
 :param (jogador): o jogador da vez
+:param (qj): referente a qual jogador, por exemplo, Rato 2 (seria o R que está em tabuleiro[1][2] no tabuleiro inicial)
 """
-def exec_movimento(x, y, jogador):
-    if movimento_valido(x, y):
-        tabuleiro[x][y] = jogador
+def exec_movimento(x, y, jogador,qj):
+    if movimento_valido(x, y,jogador,qj):
+        tabuleiro[x][y] = jogador.simbolo
+        tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
+        jogador.px[qj]=x
+        jogador.py[qj]=y
         return True
     else:
+        print("movimento invalido")
         return False
 """ ---------------------------------------------------------- """
 
@@ -180,18 +266,18 @@ def limpa_console():
 Imprime o tabuleiro no console
 :param. (estado): estado atual do tabuleiro
 """
-def exibe_tabuleiro(estado, comp_escolha, humano_escolha):
-    print('----------------')
+def exibe_tabuleiro(estado):
+    print('\n\n-----------------------------------------')
     for row in estado:
-        print('\n----------------')
-        for cell in row:
+        for cell in row:       
+                    
             if cell == +1:
-                print('|', comp_escolha, '|', end='')
+                print('| ', 'R ', end='')
             elif cell == -1:
-                print('|', humano_escolha, '|', end='')
+                print('| ' , 'G ', end='')
             else:
-                print('|', ' ', '|', end='')
-    print('\n----------------')
+                print('| ','  ', end='')
+        print('|\n-----------------------------------------')
 """ ---------------------------------------------------------- """
 
 """
@@ -325,5 +411,10 @@ def main():
 
     exit()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
+
+
+exibe_tabuleiro(tabuleiro)
+exec_movimento(3,0,COMP,0)
+exibe_tabuleiro(tabuleiro)
