@@ -40,8 +40,8 @@ class Jogador():
         self.simbolo=simbolo
         # DEFINE POSIÇÕES SE FOR GATO OU RATO, E A POSIÇÃO DE CADA UM EM X E Y
         if(qnt==1): 
-            self.px.append(3)
-            self.py.append(7)
+            self.px.append(7)
+            self.py.append(3)
         else:
             self.px.append(1)
             self.py.append(0)
@@ -149,34 +149,43 @@ def celulas_vazias(estado,jogador):
 """ ---------------------------------------------------------- """
 
 
-def celulas_vazias2(estado,jogado):
+def celulas_vazias2(estado,jogador):
     celulas = []
-    jogador = Jogador()
     
-    if(jogador.simbolo==+1):
+    if(jogador.simbolo==1):
 
-        for j in range(jogador.qnt):
-            celulas.append([jogador.px[j+1]][jogador.py[j]])
+        for j in range(len(jogador.qnt)):
+            if (jogador.qnt[j]==1):
+                celulas.append([jogador.px[j]+1,jogador.py[j]])
 
-            if(jogador.py<7):
-                if(tabuleiro[jogador.px[j+1]][jogador.py[j+1]]==-1):
-                    celulas.append([jogador.px[j+1]][jogador.py[j+1]])
-            
-            if(jogador.py>0):
-                if(tabuleiro[jogador.px[j+1]][jogador.py[j-1]]==-1):
-                    celulas.append([jogador.px[j+1]][jogador.py[j-1]])
-            if(jogador.px==1):
-                celulas.append([jogador.px[j+2]][jogador.py[j]])
+                if(jogador.py[j]<7):
+                    if(tabuleiro[jogador.px[j]+1][jogador.py[j]+1]==-1):
+                        celulas.append([jogador.px[j]+1,jogador.py[j]+1])
+                
+                if(jogador.py[j]>0):
+                    if(tabuleiro[jogador.px[j]+1][jogador.py[j]-1]==-1):
+                        celulas.append([jogador.px[j]+1,jogador.py[j]-1])
+                if(jogador.px[j]==1):
+                    celulas.append([jogador.px[j]+2,jogador.py[j]])
 
-
-
-    for x, row in enumerate(estado):
-        for y, cell in enumerate(row):
-            if cell == 0: celulas.append([x, y])
-            if jogador.simbolo == -1:
-                if cell == +1: celulas.append([x, y])
-            else:
-                if cell == -1: celulas.append([x, y])
+    else:
+        for i in range(jogador.px[0]-1,-1,-1):
+            celulas.append([i,jogador.py[0]])
+            if(tabuleiro[i][jogador.py[0]]==1):
+                break
+        for i in range(jogador.py[0]-1,-1,-1):
+            celulas.append([jogador.px[0],i])
+            if(tabuleiro[jogador.px[0]][i]==1):
+                break
+        
+        for i in range(jogador.px[0]+1,8,1):
+            celulas.append([i,jogador.py[0]])
+            if(tabuleiro[i][jogador.py[0]]==1):
+                break
+        for i in range(jogador.py[0]+1,8,1):
+            celulas.append([jogador.px[0],i])
+            if(tabuleiro[jogador.px[0]][i]==1):
+                break
                 
     return celulas
 
@@ -189,7 +198,7 @@ Um movimento é valido se a célula escolhida está vazia.
 :return: True se o tabuleiro[x][y] está vazio ou se tem inimigo
 """
 def movimento_valido(x, y,jogador,qj):
-    if [x, y] in celulas_vazias(tabuleiro,jogador):
+    if [x, y] in celulas_vazias2(tabuleiro,jogador):
         return True
     else:
         return False
@@ -415,6 +424,11 @@ def main():
 #     main()
 
 
+
+
 exibe_tabuleiro(tabuleiro)
-exec_movimento(3,0,COMP,0)
+exec_movimento(1,3,HUMANO,0)
+exibe_tabuleiro(tabuleiro)
+
+exec_movimento(6,3,HUMANO,0)
 exibe_tabuleiro(tabuleiro)
