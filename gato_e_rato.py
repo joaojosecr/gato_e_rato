@@ -18,6 +18,7 @@ import platform
 import time
 from os import system
 
+
 """
 Um versão simples do algoritmo MINIMAX para o Jogo da Velha.
 """
@@ -75,6 +76,8 @@ tabuleiro = [
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, -1, 0, 0, 0, 0],
 ]
+
+
 
 
 """
@@ -147,7 +150,6 @@ def celulas_vazias(estado,jogador):
                 
     return celulas
 """ ---------------------------------------------------------- """
-
 
 def celulas_vazias2(estado,jogador):
     celulas = []
