@@ -17,7 +17,7 @@ from random import choice
 import platform
 import time
 from os import system
-
+import ttt as tela
 
 """
 Um versão simples do algoritmo MINIMAX para o Jogo da Velha.
