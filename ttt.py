@@ -12,7 +12,7 @@ class TicTacToe:
     def __init__(self, master):
         self.master = master
         
-        self.board = [
+        self.tabuleiro = [
             [0, 0, 0, 0, 0, 0, 0, 0],
             [1, 2, 3, 0, 0, 4, 5, 6],
             [0, 0, 0, 0, 0, 0, 0, 0],
@@ -23,7 +23,7 @@ class TicTacToe:
             [0, 0, 0, -1, 0, 0, 0, 0],
         ]
 
-        #self.board = [[" " for i in range(8)] for j in range(8)]
+        #self.tabuleiro = [[" " for i in range(8)] for j in range(8)]
         #self.turn = "X"
         self.create_widgets()
         self.HUMANO = Jogador(1,-1,'G')
@@ -32,9 +32,9 @@ class TicTacToe:
     def create_widgets(self):
         for i in range(8):
             for j in range(8):
-                if(self.board[i][j]==0):
+                if(self.tabuleiro[i][j]==0):
                     simbolo=" "
-                elif(self.board[i][j]>0):
+                elif(self.tabuleiro[i][j]>0):
                     simbolo="R"
                 else:
                     simbolo="G"
@@ -50,61 +50,48 @@ class TicTacToe:
         y=j
         qj=0
         inicio=datetime.datetime.now()
-        check=self.check_win(self.board)
+        check=None
         if(check==None):
+            if movimento_valido(x, y,jogador,qj,self.tabuleiro):
                 
-
-            if movimento_valido(x, y,jogador,qj,self.board):
-                
-                if(self.board[x][y]>0):
-                    self.COMP.px[self.board[x][y]-1]=-2
-                    self.COMP.py[self.board[x][y]-1]=-2
-                    self.COMP.qnt[self.board[x][y]-1]=0
+                if(self.tabuleiro[x][y]>0):
+                    self.COMP.px[self.tabuleiro[x][y]-1]=-2
+                    self.COMP.py[self.tabuleiro[x][y]-1]=-2
+                    self.COMP.qnt[self.tabuleiro[x][y]-1]=0
                     
-                self.board[x][y]=jogador.valor
+                self.tabuleiro[x][y]=jogador.valor
                 #self.tabuleiro[x][y]=jogador.simbolo
                 self.update_button(x,y)
 
-                self.board[jogador.px[qj]][jogador.py[qj]] = 0
+                self.tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
                 #self.tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
                 self.update_button(jogador.px[qj],jogador.py[qj])
                 jogador.px[qj]=x
                 jogador.py[qj]=y
 
-                time.sleep(1)
-                check=self.check_win(self.board)
-                if(check=='R'):
-                    self.end_game('R')
-                elif(check=='G'):
+                check=self.check_win(self.tabuleiro)
+                if(check=='G'):
                     self.end_game('G')
-                else:
+                elif(check==None):
                     
-                    profundidade = len(celulas_vazias2(self.board,self.COMP))
+                    profundidade = len (celulas_possiveis(self.tabuleiro,self.COMP))
                     if profundidade == 0 or fim_jogo(self):
                         return
 
                     # limpa_console()
                     print('Vez do Computador [{}]'.format(-1))
-                    #exibe_tabuleiro(self.board, 1, -1)
-                    
-                    # if profundidade > 7:
-                    #     profundidade = profundidade -7
-                    #     move,qj = minimax(self, profundidade, self.COMP, self.HUMANO)
-                    #     x, y= move[0], move[1]
-                    # # if profundidade == 9:
-                    # #     x = choice([0, 1, 2])
-                    # #     y = choice([0, 1, 2])
-                    # else:
+                    #exibe_tabuleiro(self.tabuleiro, 1, -1)
+                   
                     move,qj = minimax(self, profundidade, self.COMP, self.HUMANO)
                     x, y= move[0], move[1]
 
 
                     
 
-                    self.board[x][y]=qj+1
+                    self.tabuleiro[x][y]=qj+1
                     self.update_button(x,y)
 
-                    self.board[self.COMP.px[qj]][self.COMP.py[qj]] = 0
+                    self.tabuleiro[self.COMP.px[qj]][self.COMP.py[qj]] = 0
                     self.update_button(self.COMP.px[qj],self.COMP.py[qj])
                     
                     self.COMP.px[qj]=x
@@ -114,26 +101,26 @@ class TicTacToe:
 
 
                     fim=datetime.datetime.now()
-
+                    
                     print("Tempo gasto: ", fim.minute-inicio.minute,fim.second-inicio.second)
                     print('Vez do Humano [{}]'.format(1))
-            else:
-                print("movimento invalido")
-        elif(check=='R'):
-            self.end_game('R')
-        else:
-            self.end_game('G')
-        # if self.board[i][j] == " ":
-        #     self.board[i][j] = self.turn
+                    
+                    check=self.check_win(self.tabuleiro)    
+                    if(check=='R'):
+                        self.end_game('R')
+                else:
+                    print("movimento invalido")
+        # if self.tabuleiro[i][j] == " ":
+        #     self.tabuleiro[i][j] = self.turn
         #     self.turn = "O" if self.turn == "X" else "X"
             
         #     self.update_button(i, j)
         #     self.check_win()
             
     def update_button(self, i, j):
-        if(self.board[i][j]==0):
+        if(self.tabuleiro[i][j]==0):
             simbolo=" "
-        elif(self.board[i][j]>0):
+        elif(self.tabuleiro[i][j]>0):
             simbolo="R"
         else:
             simbolo="G"
@@ -143,7 +130,7 @@ class TicTacToe:
         button["text"] = simbolo
 
     def check_win(self,estado):
-        #estado=self.board
+        #estado=self.tabuleiro
         soma=0
         # SOMA PARA SABER QUANTOS RATOS ESTAO VIVOS
         somaG=0
@@ -270,7 +257,7 @@ Funcao para avaliacao heuristica do estado.
 :returna: +1 se o computador vence; -1 se o HUMANOo vence; 0 empate
  """
 def avaliacao(estado):
-    vencedor=estado.check_win(estado.board)
+    vencedor=estado.check_win(estado.tabuleiro)
     #print(vencedor)         
     if vencedor=='R':
         return 1
@@ -315,7 +302,7 @@ Testa fim de jogo para ambos jogadores de acordo com estado atual
 return: será fim de jogo caso ocorra vitória de um dos jogadores.
 """
 def fim_jogo(estado):
-    vencedor=estado.check_win(estado.board)
+    vencedor=estado.check_win(estado.tabuleiro)
     #print(vencedor)         
     if vencedor=='R':
         return True
@@ -336,7 +323,7 @@ def celulas_vazias(tabuleiro,jogador):
     
     return celulas
 
-def celulas_vazias2(tabuleiro,jogador):
+def celulas_possiveis(tabuleiro,jogador):
     celulas = []
     
     if(jogador.valor==1):
@@ -387,7 +374,7 @@ Um movimento é valido se a célula escolhida está vazia.
 :return: True se o tabuleiro[x][y] está vazio ou se tem inimigo
 """
 def movimento_valido(x, y,jogador,qj,tabuleiro):
-    if [[x, y],0] in celulas_vazias2(tabuleiro,jogador):
+    if [[x, y],0] in celulas_possiveis(tabuleiro,jogador):
         return True
     else:
         return False
@@ -425,8 +412,8 @@ mas nunca será nove neste caso (veja a função iavez())
 def minimax(estado,profundidade,jogador,proxj):
     jog=0
     #limpa_console()
-    if profundidade>3:
-        profundidade=3
+    if profundidade>12:
+        profundidade=12
     if jogador.valor == COMP.valor:
         melhor = [-1, -1, -999999999]
     else:
@@ -439,19 +426,19 @@ def minimax(estado,profundidade,jogador,proxj):
         return [-1, -1, placar],jog
 
 
-    #print(celulas_vazias2(estado.board,jogador))
-    for cell, qj in celulas_vazias2(estado.board,jogador):
+    #print celulas_possiveis(estado.tabuleiro,jogador))
+    for cell, qj in celulas_possiveis(estado.tabuleiro,jogador):
         #print(cell,profundidade)
         x=cell[0]
         y=cell[1]
         aux=qj
-        valAnterior=estado.board[x][y]
+        valAnterior=estado.tabuleiro[x][y]
 
-        estado.board[jogador.px[aux]][jogador.py[aux]]=0
+        estado.tabuleiro[jogador.px[aux]][jogador.py[aux]]=0
         if(jogador.valor==-1):
-            estado.board[x][y]=-1
+            estado.tabuleiro[x][y]=-1
         else:
-            estado.board[x][y]=aux+1
+            estado.tabuleiro[x][y]=aux+1
         xj=jogador.px[aux]
         yj=jogador.py[aux]
         jogador.px[aux]=x
@@ -463,11 +450,11 @@ def minimax(estado,profundidade,jogador,proxj):
             placar , qj = minimax(estado, profundidade - 1, proxj,jogador)
 
         if(jogador.valor==-1):
-            estado.board[xj][yj]=-1
+            estado.tabuleiro[xj][yj]=-1
         else:
-            estado.board[xj][yj]=aux+1
+            estado.tabuleiro[xj][yj]=aux+1
         
-        estado.board[x][y]=valAnterior
+        estado.tabuleiro[x][y]=valAnterior
         jogador.px[aux]=xj
         jogador.py[aux]=yj
 
