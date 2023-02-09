@@ -257,14 +257,37 @@ Funcao para avaliacao heuristica do estado.
 :returna: +1 se o computador vence; -1 se o HUMANOo vence; 0 empate
  """
 def avaliacao(estado):
+    
     vencedor=estado.check_win(estado.tabuleiro)
     #print(vencedor)         
     if vencedor=='R':
-        return 1
+        return 100
     elif vencedor=='G':
-        return -1
+        return -100
     else:
-        return 0
+        aux=0
+        retorno=[]
+        ratovivo=0
+        for rato in range(6):
+            # nao perder rato
+            ratovivo=estado.COMP.qnt[rato]+ratovivo
+            
+            
+        for rato in range(6):    
+            if (rato == 1 or rato == 4):
+                aux=3
+            else:
+                aux=0
+            # rato mais perto do fim
+            retorno.append(estado.COMP.px[rato]+ratovivo+aux)
+
+
+        # gato fora da linha e coluna do rato
+        # rato na diagonal do outro rato para proteger
+        
+    
+
+        return max(retorno)
 
 """ fim avaliacao (estado)------------------------------------- """
 
@@ -412,8 +435,8 @@ mas nunca será nove neste caso (veja a função iavez())
 def minimax(estado,profundidade,jogador,proxj):
     jog=0
     #limpa_console()
-    if profundidade>12:
-        profundidade=12
+    if profundidade>3:
+        profundidade=3
     if jogador.valor == COMP.valor:
         melhor = [-1, -1, -999999999]
     else:
