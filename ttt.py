@@ -8,6 +8,7 @@ from os import system
 import ttt as tela
 import datetime
 
+iniciado = False
 class TicTacToe:
     def __init__(self, master):
         self.master = master
@@ -25,11 +26,14 @@ class TicTacToe:
 
         #self.tabuleiro = [[" " for i in range(8)] for j in range(8)]
         #self.turn = "X"
+        button = tk.Button(self.master, text=str("Start"), font=("Helvetica", 20), width=3, height=1, name="start", command=lambda: self.play(0, 0,1))
+        button.grid(row=9, column=3)
         self.create_widgets()
         self.HUMANO = Jogador(1,-1,'G')
         self.COMP = Jogador(6,+1,'R')
         
     def create_widgets(self):
+        
         for i in range(8):
             for j in range(8):
                 if(self.tabuleiro[i][j]==0):
@@ -38,85 +42,88 @@ class TicTacToe:
                     simbolo="R"
                 else:
                     simbolo="G"
-                button = tk.Button(self.master, text=str(simbolo), font=("Helvetica", 20), width=3, height=1, name="button"+str(i)+str(j), command=lambda i=i, j=j: self.play(i, j))
+                button = tk.Button(self.master, text=str(simbolo), font=("Helvetica", 20), width=3, height=1, name="button"+str(i)+str(j), command=lambda i=i, j=j: self.play(i, j,0))
                 button.grid(row=i, column=j)
                 button.config(bg="grey")
                 if((i+j)%2==0):
                     button.config(bg="white")
                   
-    def play(self, i, j):
-        jogador=self.HUMANO
-        x=i
-        y=j
-        qj=0
-        inicio=datetime.datetime.now()
-        check=None
-        if(check==None):
-            if movimento_valido(x, y,jogador,qj,self.tabuleiro):
+    def play(self, i, j,inicio):
+        global iniciado
+        if(inicio==1):
+            iniciado = True
+
+        if(iniciado==False):
+            return
+        else:
+        
+            jogador=self.HUMANO
+            x=i
+            y=j
+            qj=0
+            check=None
+            if(check==None):
+                x=i
+                y=j
+                if movimento_valido(x, y,jogador,qj,self.tabuleiro) or inicio == 1:
+                    if(inicio==0):
+                        if(self.tabuleiro[x][y]>0):
+                            self.COMP.px[self.tabuleiro[x][y]-1]=-2
+                            self.COMP.py[self.tabuleiro[x][y]-1]=-2
+                            self.COMP.qnt[self.tabuleiro[x][y]-1]=0
+                            
+                        self.tabuleiro[x][y]=jogador.valor
+                        #self.tabuleiro[x][y]=jogador.simbolo
+                        self.update_button(x,y)
+
+                        self.tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
+                        #self.tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
+                        self.update_button(jogador.px[qj],jogador.py[qj])
+                        jogador.px[qj]=x
+                        jogador.py[qj]=y
+
+                        
+                        print('Vez do Humano [{}]'.format(1))
+                        
+                        check=self.check_win(self.tabuleiro)    
+                    if(check=='G'):
+                        self.end_game('G')
+                    elif(check==None):
+                        profundidade = len (celulas_possiveis(self.tabuleiro,self.COMP))
+                        if profundidade == 0 or fim_jogo(self):
+                            return
+
+                        # limpa_console()
+                        print('Vez do Computador [{}]'.format(-1))
+                        #exibe_tabuleiro(self.tabuleiro, 1, -1)
+                        
+                        move,qj = minimax(self, profundidade, self.COMP, self.HUMANO)
+                        x, y= move[0], move[1]
+
+                        self.tabuleiro[x][y]=qj+1
+                        self.update_button(x,y)
+
+                        self.tabuleiro[self.COMP.px[qj]][self.COMP.py[qj]] = 0
+                        self.update_button(self.COMP.px[qj],self.COMP.py[qj])
+                        
+                        self.COMP.px[qj]=x
+                        self.COMP.py[qj]=y
+                        #exec_movimento(x, y, COMP,)
+                        
+
+                        check=self.check_win(self.tabuleiro)
+                        if(check=='R'):
+                            self.end_game('R')
                 
-                if(self.tabuleiro[x][y]>0):
-                    self.COMP.px[self.tabuleiro[x][y]-1]=-2
-                    self.COMP.py[self.tabuleiro[x][y]-1]=-2
-                    self.COMP.qnt[self.tabuleiro[x][y]-1]=0
-                    
-                self.tabuleiro[x][y]=jogador.valor
-                #self.tabuleiro[x][y]=jogador.simbolo
-                self.update_button(x,y)
-
-                self.tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
-                #self.tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
-                self.update_button(jogador.px[qj],jogador.py[qj])
-                jogador.px[qj]=x
-                jogador.py[qj]=y
-
-                check=self.check_win(self.tabuleiro)
-                if(check=='G'):
-                    self.end_game('G')
-                elif(check==None):
-                    
-                    profundidade = len (celulas_possiveis(self.tabuleiro,self.COMP))
-                    if profundidade == 0 or fim_jogo(self):
-                        return
-
-                    # limpa_console()
-                    print('Vez do Computador [{}]'.format(-1))
-                    #exibe_tabuleiro(self.tabuleiro, 1, -1)
-                   
-                    move,qj = minimax(self, profundidade, self.COMP, self.HUMANO)
-                    x, y= move[0], move[1]
-
-
-                    
-
-                    self.tabuleiro[x][y]=qj+1
-                    self.update_button(x,y)
-
-                    self.tabuleiro[self.COMP.px[qj]][self.COMP.py[qj]] = 0
-                    self.update_button(self.COMP.px[qj],self.COMP.py[qj])
-                    
-                    self.COMP.px[qj]=x
-                    self.COMP.py[qj]=y
-                    #exec_movimento(x, y, COMP,)
-                    time.sleep(1)
-
-
-                    fim=datetime.datetime.now()
-                    
-                    print("Tempo gasto: ", fim.minute-inicio.minute,fim.second-inicio.second)
-                    print('Vez do Humano [{}]'.format(1))
-                    
-                    check=self.check_win(self.tabuleiro)    
-                    if(check=='R'):
-                        self.end_game('R')
                 else:
-                    print("movimento invalido")
-        # if self.tabuleiro[i][j] == " ":
-        #     self.tabuleiro[i][j] = self.turn
-        #     self.turn = "O" if self.turn == "X" else "X"
-            
-        #     self.update_button(i, j)
-        #     self.check_win()
-            
+                    print("movimento invalido")    
+            # if self.tabuleiro[i][j] == " ":
+            #     self.tabuleiro[i][j] = self.turn
+            #     self.turn = "O" if self.turn == "X" else "X"
+                
+            #     self.update_button(i, j)
+            #     self.check_win()
+                
     def update_button(self, i, j):
         if(self.tabuleiro[i][j]==0):
             simbolo=" "
@@ -169,6 +176,8 @@ class TicTacToe:
         return None
          
     def end_game(self, winner):
+        global iniciado
+        iniciado = False
         messagebox.showinfo("Fim de Jogo", winner + " venceu!")
         self.master.destroy()
 
