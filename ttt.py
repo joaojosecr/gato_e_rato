@@ -142,37 +142,37 @@ class TicTacToe:
         # SOMA PARA SABER QUANTOS RATOS ESTAO VIVOS
         somaG=0
 
+        win_estado = []
+            # TEM RATO NA LINHA DE BAIXO
+        win_estado.append(estado[7][0]) # [0][7]
+        win_estado.append(estado[7][1]) # [1][7]
+        win_estado.append(estado[7][2]) # [2][7]
+        win_estado.append(estado[7][3]) # [3][7]
+        win_estado.append(estado[7][4]) # [4][7]
+        win_estado.append(estado[7][5]) # [5][7]
+        win_estado.append(estado[7][6]) # [6][7]
+        win_estado.append(estado[7][7]) # [7][7]    
+
+        for x in range(len(win_estado)):
+            if (win_estado[x]>0):
+                return self.COMP.simbolo
+        # então o jogador vence!
+
         for line in estado:
-            for cell in line: 
+            for cell in line:   
                 if cell>0:
                     soma=soma+1
                 if cell < 0:
                     somaG=1 
-
-
+        
 
         # CONFERE SE TEM ALGUM RATO VIVO
         if(soma==0): return self.HUMANO.simbolo
         # CONFERE SE GATO TA MORTO
         if(somaG==0): return self.COMP.simbolo
 
-        win_estado = [
-            # TEM RATO NA LINHA DE BAIXO
-            [estado[7][0]], # [0][7]
-            [estado[7][1]], # [1][7]
-            [estado[7][2]], # [2][7]
-            [estado[7][3]], # [3][7]
-            [estado[7][4]], # [4][7]
-            [estado[7][5]], # [5][7]
-            [estado[7][6]], # [6][7]
-            [estado[7][7]], # [7][7]    
-        ]
 
-        # então o jogador vence!
 
-        if [self.COMP.valor] in win_estado:
-            return self.COMP.simbolo
-        
         return None
          
     def end_game(self, winner):
@@ -270,32 +270,58 @@ def avaliacao(estado):
     vencedor=estado.check_win(estado.tabuleiro)
     #print(vencedor)         
     if vencedor=='R':
-        return 100
+        return 100000000
     elif vencedor=='G':
-        return -100
+        return -100000000
     else:
         aux=0
+        diagonal = 0
         retorno=[]
         ratovivo=0
+        linhagato=0
         for rato in range(6):
             # nao perder rato
             ratovivo=estado.COMP.qnt[rato]+ratovivo
             
-            
+        rato=0
         for rato in range(6):    
-            if (rato == 1 or rato == 4):
-                aux=3
-            else:
-                aux=0
+            # if (rato == 1 or rato == 4):
+            #     aux=1
+            # else:
+            #     aux=0
+            
+           
+            # rato na diagonal do outro rato para proteger
+            try:
+                if ( estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]-1] > 0):
+
+                    diagonal += 9
+                else:
+                    diagonal -= 4
+                if (estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]+1] > 0):    
+                    diagonal += 9
+                else:
+                    diagonal -= 4
+            except:
+                print("")
+
+            
+            # gato fora da linha e coluna do rato
+            if (estado.COMP.px[rato]==estado.HUMANO.px[0] or estado.COMP.py[rato]==estado.HUMANO.py[0]):
+
+                linhagato = - 9
+                try:
+                    if ( estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]-1] > 0):
+
+                        linhagato = 8
+                    if ( estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]+1] > 0):
+
+                        linhagato = 8
+                except:
+                    print("")
+
             # rato mais perto do fim
-            retorno.append(estado.COMP.px[rato]+ratovivo+aux)
-
-
-        # gato fora da linha e coluna do rato
-        # rato na diagonal do outro rato para proteger
-        
-    
-
+            retorno.append(estado.COMP.px[rato]+2*ratovivo+aux+diagonal+linhagato)
         return max(retorno)
 
 """ fim avaliacao (estado)------------------------------------- """
@@ -349,11 +375,6 @@ def fim_jogo(estado):
 Verifica celulas vazias e insere na lista para informar posições
 ainda permitidas para próximas jogadas.
 """
-def celulas_vazias(tabuleiro,jogador):
-    celulas = []
-    
-    
-    return celulas
 
 def celulas_possiveis(tabuleiro,jogador):
     celulas = []
@@ -412,24 +433,6 @@ def movimento_valido(x, y,jogador,qj,tabuleiro):
         return False
 """ ---------------------------------------------------------- """
 
-"""
-Executa o movimento no tabuleiro se as coordenadas são válidas
-:param (x): coordenadas X
-:param (y): coordenadas Y
-:param (jogador): o jogador da vez
-:param (qj): referente a qual jogador, por exemplo, Rato 2 (seria o R que está em tabuleiro[1][2] no tabuleiro inicial)
-"""
-def exec_movimento(x, y, jogador,qj):
-    if movimento_valido(x, y,jogador,qj):
-        tabuleiro[x][y] = jogador.simbolo
-        tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
-        jogador.px[qj]=x
-        jogador.py[qj]=y
-        return True
-    else:
-        print("movimento invalido")
-        return False
-""" ---------------------------------------------------------- """
 
 """
 Função da IA que escolhe o melhor movimento
@@ -444,8 +447,8 @@ mas nunca será nove neste caso (veja a função iavez())
 def minimax(estado,profundidade,jogador,proxj):
     jog=0
     #limpa_console()
-    if profundidade>3:
-        profundidade=3
+    if profundidade>4:
+        profundidade=4
     if jogador.valor == COMP.valor:
         melhor = [-1, -1, -999999999]
     else:
@@ -505,14 +508,6 @@ def minimax(estado,profundidade,jogador,proxj):
     return melhor,jog
 
 
-
-
-
-
-
-
-
-
 """
 Limpa o console para SO Windows
 """
@@ -524,161 +519,14 @@ def limpa_console():
         system('clear')
 """ ---------------------------------------------------------- """
 
-"""
-Imprime o tabuleiro no console
-:param. (estado): estado atual do tabuleiro
-"""
-def exibe_tabuleiro(estado):
-    print('\n\n-----------------------------------------')
-    for row in estado:
-        for cell in row:       
-                    
-            if cell == +1:
-                print('| ', 'R ', end='')
-            elif cell == -1:
-                print('| ' , 'G ', end='')
-            else:
-                print('| ','  ', end='')
-        print('|\n-----------------------------------------')
-""" ---------------------------------------------------------- """
 
-"""
-Chama a função minimax se a profundidade < 9,
-ou escolhe uma coordenada aleatória.
-:param (comp_escolha): Computador escolhe X ou O
-:param (humano_escolha): HUMANO escolhe X ou O
-:return:
-"""
-def IA_vez(comp_escolha, humano_escolha):
-    profundidade = len(celulas_vazias(tabuleiro))
-    if profundidade == 0 or fim_jogo(tabuleiro):
-        return
 
-    limpa_console()
-    print('Vez do Computador [{}]'.format(comp_escolha))
-    exibe_tabuleiro(tabuleiro, comp_escolha, humano_escolha)
-
-    if profundidade == 9:
-        x = choice([0, 1, 2])
-        y = choice([0, 1, 2])
-    #else:
-        #move = minimax(tabuleiro, profundidade, COMP)
-        #x, y = move[0], move[1]
-
-    exec_movimento(x, y, COMP)
-    time.sleep(1)
-""" ---------------------------------------------------------- """
-
-def HUMANO_vez(comp_escolha, humano_escolha):
-    """
-    O HUMANO joga escolhendo um movimento válido
-    :param comp_escolha: Computador escolhe X ou O
-    :param humano_escolha: HUMANO escolhe X ou O
-    :return:
-    """
-    profundidade = len(celulas_vazias(tabuleiro))
-    if profundidade == 0 or fim_jogo(tabuleiro):
-        return
-
-    # Dicionário de movimentos válidos
-    movimento = -1
-    movimentos = {
-        1: [0, 0], 2: [0, 1], 3: [0, 2],
-        4: [1, 0], 5: [1, 1], 6: [1, 2],
-        7: [2, 0], 8: [2, 1], 9: [2, 2],
-    }
-
-    limpa_console()
-    print('Vez do HUMANO [{}]'.format(humano_escolha))
-    exibe_tabuleiro(tabuleiro, comp_escolha, humano_escolha)
-
-    while (movimento < 1 or movimento > 9):
-        try:
-            movimento = int(input('Use numero (1..9): '))
-            coord = movimentos[movimento]
-            tenta_movimento = exec_movimento(coord[0], coord[1], HUMANO)
-
-            if tenta_movimento == False:
-                print('Movimento Inválido')
-                movimento = -1
-        except KeyboardInterrupt:
-            print('Tchau!')
-            exit()
-        except:
-            print('Escolha Inválida!')
-""" ---------------------------------------------------------- """
-
-"""
-Funcao Principal que chama todas funcoes
-"""
 def main():
-
-    limpa_console()
-    humano_escolha = '' # Pode ser X ou O
-    comp_escolha = '' # Pode ser X ou O
-    primeiro = ''  # se HUMANO e o primeiro
-
-    # HUMANO escolhe X ou O para jogar
-    while humano_escolha != 'O' and humano_escolha != 'X':
-        try:
-            print('')
-            humano_escolha = input('Escolha X or O\n: ').upper()
-        except KeyboardInterrupt:
-            print('Tchau!')
-            exit()
-        except:
-            print('Escolha Errada')
-
-    # Setting Computador's choice
-    if humano_escolha == 'X':
-        comp_escolha = 'O'
-    else:
-        comp_escolha = 'X'
-
-    # HUMANO pode começar primeiro
-    limpa_console()
-    while primeiro != 'S' and primeiro != 'N':
-        try:
-            primeiro = input('Primeiro a Iniciar?[s/n]: ').upper()
-        except KeyboardInterrupt:
-            print('Tchau!')
-            exit()
-        except:
-            print('Escolha Errada!')
-
-    # Laço principal do jogo
-    while len(celulas_vazias(tabuleiro)) > 0 and not fim_jogo(tabuleiro):
-        if primeiro == 'N':
-            IA_vez(comp_escolha, humano_escolha)
-            primeiro = ''
-
-        HUMANO_vez(comp_escolha, humano_escolha)
-        IA_vez(comp_escolha, humano_escolha)
-
-    # Mensagem de Final de jogo
-    if vitoria(tabuleiro, HUMANO):
-        limpa_console()
-        print('Vez do HUMANO [{}]'.format(humano_escolha))
-        exibe_tabuleiro(tabuleiro, comp_escolha, humano_escolha)
-        print('Você Venceu!')
-    elif vitoria(tabuleiro, COMP):
-        limpa_console()
-        print('Vez do Computador [{}]'.format(comp_escolha))
-        exibe_tabuleiro(tabuleiro, comp_escolha, humano_escolha)
-        print('Você Perdeu!')
-    else:
-        limpa_console()
-        exibe_tabuleiro(tabuleiro, comp_escolha, humano_escolha)
-        print('Empate!')
-
-    exit()
-
-# if __name__ == '__main__':
-#     main()
+    root = tk.Tk()
+    root.title("Jogo da Velha")
+    game = TicTacToe(root)
+    root.mainloop()
 
 
-
-root = tk.Tk()
-root.title("Jogo da Velha")
-game = TicTacToe(root)
-root.mainloop()
+if __name__ == '__main__':
+    main()
