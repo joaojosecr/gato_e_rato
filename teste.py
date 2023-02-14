@@ -97,7 +97,7 @@ class TicTacToe:
                         print('Vez do Computador [{}]'.format(-1))
                         #exibe_tabuleiro(self.tabuleiro, 1, -1)
                         
-                        move,qj = minimax(self, profundidade, self.COMP, self.HUMANO)
+                        move,qj = minimax(self, profundidade, self.COMP, self.HUMANO,1)
                         x, y= move[0], move[1]
 
                         self.tabuleiro[x][y]=qj+1
@@ -243,20 +243,6 @@ class Jogador():
             self.py.append(7)
 
             
-HUMANO = Jogador(1,-1,'G')
-COMP = Jogador(6,+1,'R')
-
-tabuleiro = [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 0, 0, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, -1, 0, 0, 0, 0],
-]
-
 
 
 
@@ -265,15 +251,18 @@ Funcao para avaliacao heuristica do estado.
 :parametro (estado): o estado atual do tabuleiro
 :returna: +1 se o computador vence; -1 se o HUMANOo vence; 0 empate
  """
-def avaliacao(estado):
+def avaliacao2(estado,jogador):
     
     vencedor=estado.check_win(estado.tabuleiro)
     #print(vencedor)         
+    
+    
     if vencedor=='R':
         return 100000000
     elif vencedor=='G':
         return -100000000
-    else:
+    else:      
+        
         aux=0
         diagonal = 0
         retorno=[]
@@ -321,39 +310,76 @@ def avaliacao(estado):
                     print("")
 
             # rato mais perto do fim
-            retorno.append(estado.COMP.px[rato]+2*ratovivo+aux+diagonal+linhagato)
-        return max(retorno)
+            retorno.append(estado.COMP.px[rato]+2*ratovivo+aux+4*diagonal+3*linhagato)
+        return sum(retorno)
+
+
+def avaliacao(estado,jogador):
+    
+    vencedor=estado.check_win(estado.tabuleiro)
+    #print(vencedor)         
+    
+    
+    if vencedor=='R':
+        print()
+        return 50#100000000
+    elif vencedor=='G':
+        return -50#100000000
+    else:      
+        
+        aux=0
+        diagonal = 0
+        retorno=[]
+        ratovivo=0
+        linhagato=0
+        for rato in range(6):
+            # nao perder rato
+            ratovivo=estado.COMP.qnt[rato]+ratovivo
+            
+        rato=0
+        for rato in range(6):    
+            # if (rato == 1 or rato == 4):
+            #     aux=1
+            # else:
+            #     aux=0
+            
+           
+            # rato na diagonal do outro rato para proteger
+            try:
+                if ( estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]-1] > 0):
+
+                    diagonal = 9
+                else:
+                    diagonal = -4
+                if (estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]+1] > 0):    
+                    diagonal = 9
+                else:
+                    diagonal = -4
+            except:
+                print("")
+
+            
+            # gato fora da linha e coluna do rato
+            if (estado.COMP.px[rato]==estado.HUMANO.px[0] or estado.COMP.py[rato]==estado.HUMANO.py[0]):
+
+                linhagato = - 9
+                try:
+                    if ( estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]-1] > 0):
+
+                        linhagato = 8
+                    if ( estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]+1] > 0):
+
+                        linhagato = 8
+                except:
+                    print("")
+
+            # rato mais perto do fim
+
+            retorno.append(1*estado.COMP.px[rato]+2*ratovivo+10*diagonal+17*linhagato)
+
+        return sum(retorno)
 
 """ fim avaliacao (estado)------------------------------------- """
-
-def vitoria(estado, jogador):
-    """
-    Esta funcao testa se um jogador especifico vence. Possibilidades:
-
-    SE TEM UM RATO NA ULTIMA LINHA DO TABULEIRO
-
-    :param. (estado): o estado atual do tabuleiro
-    :param. (jogador): um HUMANO ou um Computador
-    :return: True se jogador vence
-    """
-    win_estado = [
-        # TEM RATO NA LINHA DE BAIXO
-        [estado[0][7]], # [0][7]
-        [estado[1][7]], # [1][7]
-        [estado[2][7]], # [2][7]
-        [estado[3][7]], # [3][7]
-        [estado[4][7]], # [4][7]
-        [estado[5][7]], # [5][7]
-        [estado[6][7]], # [6][7]
-        [estado[7][7]], # [7][7]    
-    ]
-
-    # então o jogador vence!
-    if [jogador.simbolo] in win_estado:
-        return True
-    else:
-        return False
-""" ---------------------------------------------------------- """
 
 """
 Testa fim de jogo para ambos jogadores de acordo com estado atual
@@ -444,18 +470,18 @@ mas nunca será nove neste caso (veja a função iavez())
 """
 
 """ ---------------------------------------------------------- """
-def minimax(estado,profundidade,jogador,proxj):
+def minimax(estado,profundidade,jogador,proxj,exec):
     jog=0
     #limpa_console()
     if profundidade>4:
         profundidade=4
-    if jogador.valor == COMP.valor:
+    if jogador.valor == estado.COMP.valor:
         melhor = [-1, -1, -999999999]
     else:
         melhor = [-1, -1, +999999999]
 
     if profundidade == 0 or fim_jogo(estado):
-        placar = avaliacao(estado)
+        placar = avaliacao(estado,jogador)
         if placar==1:
             placar=placar+1
         return [-1, -1, placar],jog
@@ -468,6 +494,20 @@ def minimax(estado,profundidade,jogador,proxj):
         y=cell[1]
         aux=qj
         valAnterior=estado.tabuleiro[x][y]
+        win_estado = []
+            # TEM RATO NA LINHA DE BAIXO
+        win_estado.append(estado[7][0]) # [0][7]
+        win_estado.append(estado[7][1]) # [1][7]
+        win_estado.append(estado[7][2]) # [2][7]
+        win_estado.append(estado[7][3]) # [3][7]
+        win_estado.append(estado[7][4]) # [4][7]
+        win_estado.append(estado[7][5]) # [5][7]
+        win_estado.append(estado[7][6]) # [6][7]
+        win_estado.append(estado[7][7]) # [7][7]    
+
+        for verifica in range(len(win_estado)):
+            if (win_estado[verifica]>0):
+                return [x,y],qj
 
         estado.tabuleiro[jogador.px[aux]][jogador.py[aux]]=0
         if(jogador.valor==-1):
@@ -478,12 +518,10 @@ def minimax(estado,profundidade,jogador,proxj):
         yj=jogador.py[aux]
         jogador.px[aux]=x
         jogador.py[aux]=y
-
-        if jogador.valor == COMP.valor:
-            placar , qj = minimax(estado, profundidade - 1, proxj,jogador)
-        else:
-            placar , qj = minimax(estado, profundidade - 1, proxj,jogador)
-
+        
+        
+        placar , qj = minimax(estado, profundidade - 1, proxj,jogador,exec)
+        
         if(jogador.valor==-1):
             estado.tabuleiro[xj][yj]=-1
         else:
@@ -495,30 +533,17 @@ def minimax(estado,profundidade,jogador,proxj):
 
         placar[0], placar[1] = x, y
 
-        if jogador.valor == COMP.valor:
+        if jogador.valor == estado.COMP.valor:
+            exec=0
             if placar[2] > melhor[2]:
                 melhor = placar  # valor MAX
                 jog=aux
-
         else:
             if placar[2] < melhor[2]:
                 melhor = placar  # valor MIN
                 jog=aux
 
     return melhor,jog
-
-
-"""
-Limpa o console para SO Windows
-"""
-def limpa_console():
-    os_name = platform.system().lower()
-    if 'windows' in os_name:
-        system('cls')
-    else:
-        system('clear')
-""" ---------------------------------------------------------- """
-
 
 
 def main():

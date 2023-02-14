@@ -3,10 +3,7 @@ from tkinter import messagebox
 from math import inf as infinity
 from random import choice
 import platform
-import time
 from os import system
-import ttt as tela
-import datetime
 
 iniciado = False
 class TicTacToe:
@@ -479,11 +476,8 @@ def minimax(estado,profundidade,jogador,proxj):
         jogador.px[aux]=x
         jogador.py[aux]=y
 
-        if jogador.valor == COMP.valor:
-            placar , qj = minimax(estado, profundidade - 1, proxj,jogador)
-        else:
-            placar , qj = minimax(estado, profundidade - 1, proxj,jogador)
-
+        placar , qj = minimax(estado, profundidade - 1, proxj,jogador)
+        
         if(jogador.valor==-1):
             estado.tabuleiro[xj][yj]=-1
         else:
@@ -523,7 +517,7 @@ def limpa_console():
 
 def main():
     root = tk.Tk()
-    root.title("Jogo da Velha")
+    root.title("Gato e Rato")
     game = TicTacToe(root)
     root.mainloop()
 
