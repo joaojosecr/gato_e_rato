@@ -1,18 +1,21 @@
 import tkinter as tk
 from tkinter import messagebox
-from math import inf as infinity
-from random import choice
-import platform
-import time
-from os import system
-import ttt as tela
-import datetime
 
+# VARIAVEL AUX PARA INICAR JOGO
 iniciado = False
-class TicTacToe:
+
+
+# CLASSE DE INTERFACE GRAFICA
+class GatoERato:
     def __init__(self, master):
         self.master = master
-        
+
+        """
+        CRIA TABULEIRO ONDE:
+            VALORES > 0 = RATO
+            VALORES < 0 = GATO
+            VALORES = 0 = VAZIO
+        """
         self.tabuleiro = [
             [0, 0, 0, 0, 0, 0, 0, 0],
             [1, 2, 3, 0, 0, 4, 5, 6],
@@ -24,27 +27,37 @@ class TicTacToe:
             [0, 0, 0, -1, 0, 0, 0, 0],
         ]
 
-        #self.tabuleiro = [[" " for i in range(8)] for j in range(8)]
-        #self.turn = "X"
+        
+        # CHAMADA DA FUNÇÃO QUE CRIA AS CELULAS (BOTOES) DO TABULEIRO
+        self.create_widgets()
+        
+        # CRIANDO BOTAO DE START DO JOGO
         button = tk.Button(self.master, text=str("Start"), font=("Helvetica", 20), width=3, height=1, name="start", command=lambda: self.play(0, 0,1))
         button.grid(row=9, column=3)
-        self.create_widgets()
+        
+        # CRIANDO JOGADORES
         self.HUMANO = Jogador(1,-1,'G')
         self.COMP = Jogador(6,+1,'R')
-        
+    
+    # FUNÇÃO QUE CRIA AS CELULAS (BOTOES) DO TABULEIRO
     def create_widgets(self):
         
         for i in range(8):
             for j in range(8):
                 if(self.tabuleiro[i][j]==0):
+                    # CELULAS = 0  RECEBEM " "
                     simbolo=" "
                 elif(self.tabuleiro[i][j]>0):
+                    # CELULAS > 0 = RATO 
                     simbolo="R"
                 else:
+                    # CELULAS < 0 = GATO
                     simbolo="G"
+                # CRIA CADA CELULA [i,j]
+
                 button = tk.Button(self.master, text=str(simbolo), font=("Helvetica", 20), width=3, height=1, name="button"+str(i)+str(j), command=lambda i=i, j=j: self.play(i, j,0))
                 button.grid(row=i, column=j)
-                button.config(bg="grey")
+                button.config(bg="SteelBlue1")
                 if((i+j)%2==0):
                     button.config(bg="white")
                   
@@ -306,13 +319,13 @@ def avaliacao(estado,jogador):
             try:
                 if ( estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]-1] > 0):
 
-                    diagonal = 9
+                    diagonal = 1
                 else:
-                    diagonal = -4
+                    diagonal = -1
                 if (estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]+1] > 0):    
-                    diagonal = 9
+                    diagonal = 1
                 else:
-                    diagonal = -4
+                    diagonal = -1
             except:
                 print("")
 
@@ -320,20 +333,20 @@ def avaliacao(estado,jogador):
             # gato fora da linha e coluna do rato
             if (estado.COMP.px[rato]==estado.HUMANO.px[0] or estado.COMP.py[rato]==estado.HUMANO.py[0]):
 
-                linhagato = - 9
+                linhagato = - 1
                 try:
                     if ( estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]-1] > 0):
 
-                        linhagato = 8
+                        linhagato = 1
                     if ( estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]+1] > 0):
 
-                        linhagato = 8
+                        linhagato = 1
                 except:
                     print("")
 
             # rato mais perto do fim
 
-            retorno.append(0.5*estado.COMP.px[rato]+2*ratovivo+4*diagonal+7*linhagato)
+            retorno.append(0.2*estado.COMP.px[rato]+1*ratovivo+10*diagonal+15*linhagato)
 
         return sum(retorno)
 
@@ -492,8 +505,8 @@ def minimax(estado,profundidade,jogador,proxj,exec):
 
 def main():
     root = tk.Tk()
-    root.title("Jogo da Velha")
-    game = TicTacToe(root)
+    root.title("Gato e Rato")
+    game = GatoERato(root)
     root.mainloop()
 
 
