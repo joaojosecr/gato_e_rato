@@ -251,7 +251,7 @@ Funcao para avaliacao heuristica do estado.
 :parametro (estado): o estado atual do tabuleiro
 :returna: +1 se o computador vence; -1 se o HUMANOo vence; 0 empate
  """
-def avaliacao2(estado,jogador):
+def avaliacao(estado,jogador):
     
     vencedor=estado.check_win(estado.tabuleiro)
     #print(vencedor)         
@@ -310,73 +310,7 @@ def avaliacao2(estado,jogador):
                     print("")
 
             # rato mais perto do fim
-            retorno.append(estado.COMP.px[rato]+2*ratovivo+aux+4*diagonal+3*linhagato)
-        return sum(retorno)
-
-
-def avaliacao(estado,jogador):
-    
-    vencedor=estado.check_win(estado.tabuleiro)
-    #print(vencedor)         
-    
-    
-    if vencedor=='R':
-        print()
-        return 50#100000000
-    elif vencedor=='G':
-        return -50#100000000
-    else:      
-        
-        aux=0
-        diagonal = 0
-        retorno=[]
-        ratovivo=0
-        linhagato=0
-        for rato in range(6):
-            # nao perder rato
-            ratovivo=estado.COMP.qnt[rato]+ratovivo
-            
-        rato=0
-        for rato in range(6):    
-            # if (rato == 1 or rato == 4):
-            #     aux=1
-            # else:
-            #     aux=0
-            
-           
-            # rato na diagonal do outro rato para proteger
-            try:
-                if ( estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]-1] > 0):
-
-                    diagonal = 9
-                else:
-                    diagonal = -4
-                if (estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]+1] > 0):    
-                    diagonal = 9
-                else:
-                    diagonal = -4
-            except:
-                print("")
-
-            
-            # gato fora da linha e coluna do rato
-            if (estado.COMP.px[rato]==estado.HUMANO.px[0] or estado.COMP.py[rato]==estado.HUMANO.py[0]):
-
-                linhagato = - 9
-                try:
-                    if ( estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]-1] > 0):
-
-                        linhagato = 8
-                    if ( estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]+1] > 0):
-
-                        linhagato = 8
-                except:
-                    print("")
-
-            # rato mais perto do fim
-
-            retorno.append(1*estado.COMP.px[rato]+2*ratovivo+10*diagonal+17*linhagato)
-
+            retorno.append(estado.COMP.px[rato]+8*ratovivo+aux+ 4*diagonal+3*linhagato)
         return sum(retorno)
 
 """ fim avaliacao (estado)------------------------------------- """
@@ -494,20 +428,7 @@ def minimax(estado,profundidade,jogador,proxj,exec):
         y=cell[1]
         aux=qj
         valAnterior=estado.tabuleiro[x][y]
-        win_estado = []
-            # TEM RATO NA LINHA DE BAIXO
-        win_estado.append(estado[7][0]) # [0][7]
-        win_estado.append(estado[7][1]) # [1][7]
-        win_estado.append(estado[7][2]) # [2][7]
-        win_estado.append(estado[7][3]) # [3][7]
-        win_estado.append(estado[7][4]) # [4][7]
-        win_estado.append(estado[7][5]) # [5][7]
-        win_estado.append(estado[7][6]) # [6][7]
-        win_estado.append(estado[7][7]) # [7][7]    
 
-        for verifica in range(len(win_estado)):
-            if (win_estado[verifica]>0):
-                return [x,y],qj
 
         estado.tabuleiro[jogador.px[aux]][jogador.py[aux]]=0
         if(jogador.valor==-1):
