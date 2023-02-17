@@ -311,44 +311,54 @@ def avaliacao(estado,jogador):
         
         diagonal = 0
         retorno=[]
-        ratovivo=0
         linhagato=0
-        for rato in range(6):
-            # nao perder rato
-            ratovivo=estado.COMP.qnt[rato]+ratovivo
-            
+        
         rato=0
         for rato in range(6):              
             # rato na diagonal do outro rato para proteger
-            try:
-                if ( estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]-1] > 0):
+            
+            if (estado.COMP.py[rato]> 0 and estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]-1] > 0):
 
-                    diagonal = 1
-                else:
-                    diagonal = -1
-                if (estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]+1] > 0):    
-                    diagonal = 1
-                else:
-                    diagonal = -1
-            except:
-                pass
+                diagonal = 1
+            else:
+                diagonal = -1
+            if (estado.COMP.py[rato]<7 and estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]+1] > 0):    
+                diagonal = 1
+            else:
+                diagonal = -1
+           
 
             
-            # gato fora da linha e coluna do rato
+            # gato na linha ou coluna do rato
             if (estado.COMP.px[rato]==estado.HUMANO.px[0] or estado.COMP.py[rato]==estado.HUMANO.py[0]):
-                try:
-                    if ( estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]-1] > 0):
+                linhagato = - 1
+               
+                if ( estado.COMP.py[rato]>0 and estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]-1] > 0):
+                            
+                    linhagato = 1
+                if ( estado.COMP.py[rato]<7 and estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]+1] > 0):
 
-                        linhagato = 1
-                    if ( estado.tabuleiro[estado.COMP.px[rato]-1][estado.COMP.py[rato]+1] > 0):
+                    linhagato = 1
+                if ( estado.COMP.py[rato]<7 and estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]+1] > 0):
 
-                        linhagato = 1
-                except:
-                    linhagato = -1
+                    linhagato = 2
+                if ( estado.COMP.py[rato]>0 and  estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]-1] > 0):
+
+                    linhagato = 2 
+                
+            #rato heroi
+           
+                                  
+
 
             # rato mais perto do fim
+            """
+            Heuristica final H(x)= D(X)+L(X), onde D(X) se diz por valores em que um rato está na diagonal de outro rato
+            defendendo, e o L(X)= se o gato está na linha ou coluna de um rato e se sim será valorizando quando tem um rato defendendo
+            
 
-            retorno.append(0.2*estado.COMP.px[rato]+1*ratovivo+7*diagonal+15*linhagato)
+            """
+            retorno.append(1*diagonal+1*linhagato)
 
         return sum(retorno)
 
@@ -446,8 +456,9 @@ mas nunca será nove neste caso (veja a função iavez())
 def minimax(estado,profundidade,jogador,proxj,exec):
     jog=0
    
-    if profundidade>4:
-        profundidade=4
+    if profundidade>3:
+        profundidade=3
+    
     
     
     if jogador.valor == estado.COMP.valor:
