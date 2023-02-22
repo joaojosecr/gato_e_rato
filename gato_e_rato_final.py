@@ -1,3 +1,23 @@
+"""
+TP01-Trabalho da Disciplina Inteligência Artificial - CSI457_2022_2
+
+Discentes: Ayron Luigi de Paiva - 19.1.8065
+           João josé Cardoso Ribeiro - 18.1.8160
+
+Docente: Talles Medeiros
+
+Objetivo do gato: Capturar todos os ratos.
+
+Objetivo dos ratos: Chegar com um dos ratos ao outro lado do tabuleiro. Ou capturar o gato. Assim
+que um rato chegar ao final do tabuleiro, os ratos vencem o jogo. Os ratos também vencem se o gato
+for capturado. Atenção: basta um rato chegar à última fileira do tabuleiro para vencer o jogo, mesmo
+que o gato possa capturá-lo na próxima jogada.         
+
+"""
+
+
+
+#Library para a inteface gráfica
 import tkinter as tk
 from tkinter import messagebox
 
@@ -10,7 +30,7 @@ class GatoERato:
     def __init__(self, master):
         self.master = master
 
-
+        #IMAGENS UTILIZADAS NO TABULEIRO
         self.tom=tk.PhotoImage(file="images\\tom3.png")
         self.jerry=tk.PhotoImage(file="images\\jerry3.png")
         self.vazio=tk.PhotoImage(file="images\\vazio.png")
@@ -40,8 +60,7 @@ class GatoERato:
 
         button = tk.Button(self.master, image=self.startt, width=70, height=70, name="startt", command=lambda: self.play(0, 0,1))
         button.grid(row=9,column=3)
-        # button = tk.Button(self.master, image=self.start2, width=70, height=70, name="start2", command=lambda: self.play(0, 0,1))
-        # button.grid(row=9,column=4)
+    
         
         # CRIANDO JOGADORES
         self.HUMANO = Jogador(1,-1,'G')
@@ -62,15 +81,18 @@ class GatoERato:
                     # CELULAS < 0 = GATO
                     simbolo=self.tom
                 # CRIA CADA CELULA [i,j]
-                #button = tk.Button(self.master, image=simbolo, font=("Helvetica", 20), width=70, height=70, name="button"+str(i)+str(j), command=lambda i=i, j=j: self.play(i, j,0))
-
+              
+              
                 button = tk.Button(self.master, image=simbolo, width=70, height=70, name="button"+str(i)+str(j), command=lambda i=i, j=j: self.play(i, j,0))
                 button.grid(row=i, column=j)
+                #POSIÇÕES PARES RECEBEM A COR BRANCA AS IMPARES AZUL
                 button.config(bg="SteelBlue1")
+              
                 if((i+j)%2==0):
                     button.config(bg="white")
                   
     def play(self, i, j,inicio):
+
         global iniciado
         if(inicio==1):
             iniciado = True
@@ -95,11 +117,11 @@ class GatoERato:
                             self.COMP.qnt[self.tabuleiro[x][y]-1]=0
                             
                         self.tabuleiro[x][y]=jogador.valor
-                        #self.tabuleiro[x][y]=jogador.simbolo
+                  
                         self.update_button(x,y)
 
                         self.tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
-                        #self.tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
+                        
                         self.update_button(jogador.px[qj],jogador.py[qj])
                         jogador.px[qj]=x
                         jogador.py[qj]=y
@@ -116,7 +138,7 @@ class GatoERato:
                         if profundidade == 0 or fim_jogo(self):
                             return
 
-                        # limpa_console()
+                        
                         print('Vez do Computador [{}]'.format(-1))
                         
                         
@@ -165,13 +187,8 @@ class GatoERato:
                 
                 else:
                     print("movimento invalido")    
-            # if self.tabuleiro[i][j] == " ":
-            #     self.tabuleiro[i][j] = self.turn
-            #     self.turn = "O" if self.turn == "X" else "X"
-                
-            #     self.update_button(i, j)
-            #     self.check_win()
-                
+          
+    #FUNÇÃO PARA ATUALIZAR O TABULEIRO      
     def update_button(self, i, j):
         if(self.tabuleiro[i][j]==0):
             # CELULAS = 0  RECEBEM " "
@@ -188,13 +205,13 @@ class GatoERato:
         button["image"] = simbolo
 
     def check_win(self,estado):
-        #estado=self.tabuleiro
+   
         soma=0
         # SOMA PARA SABER QUANTOS RATOS ESTAO VIVOS
         somaG=0
 
         win_estado = []
-            # TEM RATO NA LINHA DE BAIXO
+        # ALGUM RATO CHEGOU AO FINAL?
         win_estado.append(estado[7][0]) # [0][7]
         win_estado.append(estado[7][1]) # [1][7]
         win_estado.append(estado[7][2]) # [2][7]
@@ -204,10 +221,12 @@ class GatoERato:
         win_estado.append(estado[7][6]) # [6][7]
         win_estado.append(estado[7][7]) # [7][7]    
 
+        # SE SIM O COMPUTADOR VENCEU
         for x in range(len(win_estado)):
             if (win_estado[x]>0):
                 return self.COMP.simbolo
-        # então o jogador vence!
+
+        
 
         for line in estado:
             for cell in line:   
@@ -225,7 +244,7 @@ class GatoERato:
 
 
         return None
-         
+    #MENSAGEM DO FIM DA PARTIDA APARECE NO FORMATO DE UMA CAIXA DE MENSAGEM     
     def end_game(self, winner):
         global iniciado
         iniciado = False
@@ -233,23 +252,10 @@ class GatoERato:
         self.master.destroy()
 
 
-#!/usr/bin/env python3
-# -*- codificacao: utf-8 -*-
-"""
-Created on Sun Sep 23 15:33:59 2018
-@author: talles medeiros, decsi-ufop
-"""
+
 
 """
-Este código servirá de exemplo para o aprendizado do algoritmo MINIMAX 
-na disciplina de Inteligência Artificial - CSI457
-Semestre: 2018/2
-"""
-
-#!/usr/bin/env python3
-
-"""
-Um versão simples do algoritmo MINIMAX para o Jogo da Velha.
+Um versão simples do algoritmo MINIMAX para o Jogo do Gato e Rato.
 
 # Representando a variável que identifica cada jogador
 # HUMANO = Oponente humano
@@ -446,7 +452,7 @@ def movimento_valido(x, y,jogador,qj,tabuleiro):
 """
 Função da IA que escolhe o melhor movimento
 :param (estado): estado atual do tabuleiro
-:param (profundidade): índice do nó na árvore (0 <= profundidade <= 9),
+:param (profundidade): índice do nó na árvore,
 mas nunca será nove neste caso (veja a função iavez())
 :param (jogador): um HUMANO ou um Computador
 :return: uma lista com [melhor linha, melhor coluna, melhor placar]
@@ -456,8 +462,8 @@ mas nunca será nove neste caso (veja a função iavez())
 def minimax(estado,profundidade,jogador,proxj,exec):
     jog=0
    
-    if profundidade>3:
-        profundidade=3
+    if profundidade>4:
+        profundidade=4
     
     
     
