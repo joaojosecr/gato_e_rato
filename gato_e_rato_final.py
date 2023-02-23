@@ -90,55 +90,59 @@ class GatoERato:
               
                 if((i+j)%2==0):
                     button.config(bg="white")
-    
-    # FUNÇÃO INICIALIZADA NO CLICK DOS BOTOES PARA REALIZAR OS MOVIMENTOS
+                  
     def play(self, i, j,inicio):
+
         global iniciado
-        # VERIFICAR SE USUARIO APERTOU BOTAO DE START PARA INICIAR O JOGO
         if(inicio==1):
             iniciado = True
 
         if(iniciado==False):
             return
         else:
-            # VARIAVEIS AUXILIARES
+        
             jogador=self.HUMANO
             x=i
             y=j
             qj=0
             check=None
-
             if(check==None):
-                # VERIFICANDO SE MOVIMENTO DESEJADO É VALIDO
+                x=i
+                y=j
                 if movimento_valido(x, y,jogador,qj,self.tabuleiro) or inicio == 1:
                     if(inicio==0):
-                        # CASO O GATO MATE UM RATO, SETANDO VALORES DO MESMO RATO PARA SER CONSIDERADO MORTO
                         if(self.tabuleiro[x][y]>0):
                             self.COMP.px[self.tabuleiro[x][y]-1]=-2
                             self.COMP.py[self.tabuleiro[x][y]-1]=-2
                             self.COMP.qnt[self.tabuleiro[x][y]-1]=0
-
-                        # ATUALIZA NO TABULEIRO E INTERFACE A NOVA POSIÇÃO DO JOGADOR
+                            
                         self.tabuleiro[x][y]=jogador.valor
+                  
                         self.update_button(x,y)
-                        # ATUALIZA NO TABULEIRO E INTERFACE A POSIÇÃO ANTERIOR DO JOGADOR
+
                         self.tabuleiro[jogador.px[qj]][jogador.py[qj]] = 0
+                        
                         self.update_button(jogador.px[qj],jogador.py[qj])
-                        # ATUALIZA A POSIÇÃO (x,y) NA VARIAVEL DO JOGADOR
                         jogador.px[qj]=x
                         jogador.py[qj]=y
+
                         
-                        # CHECA VITORIA APÓS JOGADA DO HUMANO
+                        print('Vez do Humano [{}]'.format(1))
+
+                        # CHECA VITORIA
                         check=self.check_win(self.tabuleiro)    
                     if(check=='G'):
                         self.end_game('G')
                     elif(check==None):
-                        # CASO O HUMANO NÃO VENÇA, NOVAMENTE A VEZ DO COMPUTADOR
                         profundidade = len (celulas_possiveis(self.tabuleiro,self.COMP))
                         if profundidade == 0 or fim_jogo(self):
                             return
+
                         
-                        # MECANISMOS PARA O COMPUTADOR VENCER MAIS RAPIDO, SEM ENTRAR NO MINIMAX CASO ELE POSSA VENCER EM APENAS 1 MOVIMENTO
+                        print('Vez do Computador [{}]'.format(-1))
+                        
+                        
+                        # VENCER MAIS RAPIDO
                         vencer=-1
                         direcao=0
                         for rato in range(6): 
@@ -165,10 +169,10 @@ class GatoERato:
                             move,qj = minimax(self, profundidade, self.COMP, self.HUMANO,1)
                             x, y= move[0], move[1]
 
-                        # ATUALIZA NO TABULEIRO E INTERFACE A NOVA POSIÇÃO DO COMPUTADOR
+                        # ATUALIZA TABULEIRO E INTERFACE
                         self.tabuleiro[x][y]=qj+1
                         self.update_button(x,y)
-                        # ATUALIZA NO TABULEIRO E INTERFACE A POSIÇÃO ANTERIOR DO COMPUTADOR
+
                         self.tabuleiro[self.COMP.px[qj]][self.COMP.py[qj]] = 0
                         self.update_button(self.COMP.px[qj],self.COMP.py[qj])
                         
@@ -221,7 +225,9 @@ class GatoERato:
         for x in range(len(win_estado)):
             if (win_estado[x]>0):
                 return self.COMP.simbolo
-            
+
+        
+
         for line in estado:
             for cell in line:   
                 if cell>0:
@@ -245,7 +251,19 @@ class GatoERato:
         messagebox.showinfo("Fim de Jogo", winner + " venceu!")
         self.master.destroy()
 
-# CLASSE JOGADOR PARA INICIAR E CONTROLAR OS JOGADORES GATO (HUMANO) E RATOS (COMPUTADOR)
+
+
+
+"""
+Um versão simples do algoritmo MINIMAX para o Jogo do Gato e Rato.
+
+# Representando a variável que identifica cada jogador
+# HUMANO = Oponente humano
+# COMP = Agente Inteligente
+# tabuleiro = dicionário com os valores em cada posição (x,y)
+# indicando o jogador que movimentou nessa posição.
+# Começa vazio, com zero em todas posições.
+"""
 class Jogador():
 
     def __init__(self, qnt, valor, simbolo) -> None:
@@ -281,19 +299,20 @@ class Jogador():
             self.px.append(1)
             self.py.append(7)
 
-
 """
 Funcao para avaliacao heuristica do estado.
 :parametro (estado): o estado atual do tabuleiro
-"""
-def avaliacao(estado):
+:returna: +1 se o computador vence; -1 se o HUMANOo vence; 0 empate
+ """
+
+def avaliacao(estado,jogador):
     
     vencedor=estado.check_win(estado.tabuleiro)
  
     if vencedor=='R':
-        return 500
+        return 500#100000000
     elif vencedor=='G':
-        return -500
+        return -500#100000000
     else:      
         
         diagonal = 0
@@ -332,7 +351,13 @@ def avaliacao(estado):
                 if ( estado.COMP.py[rato]>0 and  estado.tabuleiro[estado.COMP.px[rato]+1][estado.COMP.py[rato]-1] > 0):
 
                     linhagato = 2 
+                
+            #rato heroi
            
+                                  
+
+
+            # rato mais perto do fim
             """
             Heuristica final H(x)= D(X)+L(X), onde D(X) se diz por valores em que um rato está na diagonal de outro rato
             defendendo, e o L(X)= se o gato está na linha ou coluna de um rato e se sim será valorizando quando tem um rato defendendo
@@ -368,48 +393,40 @@ ainda permitidas para próximas jogadas.
 
 def celulas_possiveis(tabuleiro,jogador):
     celulas = []
-    # CASO SEJA COMPUTADOR
+    
     if(jogador.valor==1):
-        # FOR PARA PERCORRER TODOS OS RATOS 
+         
         for j in range(len(jogador.qnt)):
             if(jogador.qnt[j]>0):
                 if(jogador.px[j]<7):
-                    # SE CELULA EM FRENTE AO RATO É VAZIA, ADICIONA ELA NA LISTA
                     if (tabuleiro[jogador.px[j]+1][jogador.py[j]]==0):
                         celulas.append([[jogador.px[j]+1,jogador.py[j]],j])
 
                     if(jogador.py[j]<7):
-                        # SE CELULA EM DIAGONAL DIREITA AO RATO É UM GATO, ADICIONA ELA NA LISTA
                         if(tabuleiro[jogador.px[j]+1][jogador.py[j]+1]==-1):
                             celulas.append([[jogador.px[j]+1,jogador.py[j]+1],j])
                     
                     if(jogador.py[j]>0):
-                        # SE CELULA EM DIAGONAL ESQUERDA AO RATO É UM GATO, ADICIONA ELA NA LISTA
                         if(tabuleiro[jogador.px[j]+1][jogador.py[j]-1]==-1):
                             celulas.append([[jogador.px[j]+1,jogador.py[j]-1],j])
                 if(jogador.px[j]==1):
-                    # SE RATO ESTA NA POSIÇÃO INICIAL, ADICIONA A SEGUNDA CASA A FRENTE NA LISTA
                     if (tabuleiro[jogador.px[j]+2][jogador.py[j]]==0):
                         celulas.append([[jogador.px[j]+2,jogador.py[j]],j])
 
     else:
-        # CASO SEJA HUMANO
-        # ADICIONA TODAS AS CELULAS NA MESMA COLUNA ACIMA DO JOGADOR ATE UMA COLISÃO
         for i in range(jogador.px[0]-1,-1,-1):
             celulas.append([[i,jogador.py[0]],0])
             if(tabuleiro[i][jogador.py[0]]>0):
                 break
-        # ADICIONA TODAS AS CELULAS NA MESMA LINHA NA ESQUERDA DO JOGADOR ATE UMA COLISÃO
         for i in range(jogador.py[0]-1,-1,-1):
             celulas.append([[jogador.px[0],i],0])
             if(tabuleiro[jogador.px[0]][i]>0):
                 break
-        # ADICIONA TODAS AS CELULAS NA MESMA COLUNA ABAIXO DO JOGADOR ATE UMA COLISÃO
+        
         for i in range(jogador.px[0]+1,8,1):
             celulas.append([[i,jogador.py[0]],0])
             if(tabuleiro[i][jogador.py[0]]>0):
                 break
-        # ADICIONA TODAS AS CELULAS NA MESMA LINHA NA DIREITA DO JOGADOR ATE UMA COLISÃO
         for i in range(jogador.py[0]+1,8,1):
             celulas.append([[jogador.px[0],i],0])
             if(tabuleiro[jogador.px[0]][i]>0):
@@ -444,47 +461,48 @@ mas nunca será nove neste caso (veja a função iavez())
 """ ---------------------------------------------------------- """
 def minimax(estado,profundidade,jogador,proxj,exec):
     jog=0
-    # LIMITA PROFUNDIDADE 4 PARA CUSTOS COMPUTACIONAIS
+   
     if profundidade>4:
         profundidade=4
-
+    
+    
+    
     if jogador.valor == estado.COMP.valor:
         melhor = [-1, -1, -999999999]
     else:
         melhor = [-1, -1, +999999999]
 
-    # ANALISA FOLHA DA ARVORE
     if profundidade == 0 or fim_jogo(estado):
-        placar = avaliacao(estado)
+        placar = avaliacao(estado,jogador)
         if placar==1:
             placar=placar+1
         return [-1, -1, placar],jog
 
-    # PERCORRE TODAS AS CELULAS POSSIVEIS
     for cell, qj in celulas_possiveis(estado.tabuleiro,jogador):
-        # VARIAVEIS AUXILIARES 
+        
         x=cell[0]
         y=cell[1]
-        aux=qj #qj = QUAL JOGADOR
+        aux=qj
         valAnterior=estado.tabuleiro[x][y]
-        # ATUALIZA POSIÇÃO ANTERIOR E POSIÇÃO DO MOVIMENTO DO JOGADOR COM BASE EM QUAL JOGADOR É
+        
         estado.tabuleiro[jogador.px[aux]][jogador.py[aux]]=0
         if(jogador.valor==-1):
             estado.tabuleiro[x][y]=-1
         else:
             estado.tabuleiro[x][y]=aux+1
-        # ATUALIZA POSIÇÕES DA VARIAVEL DO JOGADOR
         xj=jogador.px[aux]
         yj=jogador.py[aux]
         jogador.px[aux]=x
         jogador.py[aux]=y
-        # CHAMA RECURSÃO DO MINIMAX
+        
+        
         placar , qj = minimax(estado, profundidade - 1, proxj,jogador,exec)
-        # ATUALIZA POSIÇÕES PARA PASSO ANTERIOR COM AS VARIAVEIS AUXILIARES
+        
         if(jogador.valor==-1):
             estado.tabuleiro[xj][yj]=-1
         else:
             estado.tabuleiro[xj][yj]=aux+1
+        
         estado.tabuleiro[x][y]=valAnterior
         jogador.px[aux]=xj
         jogador.py[aux]=yj
